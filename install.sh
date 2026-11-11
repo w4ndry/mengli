@@ -121,7 +121,12 @@ link "$REPO/README.md" "$CLAUDE/agents/README.md"
 prune_dangling "$CLAUDE/agents"
 
 link "$REPO/skills/mengli" "$CLAUDE/skills/mengli"
-link "$REPO/maestro" "$CLAUDE/mengli/maestro"
+# QA artifacts belong to the target project, not the installation.
+for old in "$CLAUDE/agents/mengli-qa-simulator.md" "$CLAUDE/mengli/maestro"; do
+  if [ -L "$old" ]; then
+    case "$(readlink "$old")" in "$REPO"/*) rm "$old" ;; esac
+  fi
+done
 mkdir -p "$CLAUDE/mengli/build"
 
 merge_permissions install

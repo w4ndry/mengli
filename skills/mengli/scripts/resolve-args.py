@@ -11,7 +11,7 @@ import shlex
 import sys
 
 HOME = os.path.expanduser("~")
-SKILL_DIR = os.path.join(HOME, ".claude/skills/mengli")
+SKILL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 AGENTS_DIR = os.path.join(HOME, ".claude/agents")
 
 STEPS = [
@@ -22,7 +22,7 @@ AGENT_KEYS = {
     "planner": "mengli-planner",
     "plan-reviewer": "mengli-plan-reviewer",
     "code-reviewer": "mengli-code-reviewer",
-    "qa": "mengli-qa-simulator",
+    "qa": "mengli-qa",
     "mr-reviewer": "mengli-mr-reviewer",
 }
 MODELS = ["sonnet", "opus", "haiku", "fable"]
@@ -126,6 +126,24 @@ def main():
     except (OSError, json.JSONDecodeError) as e:
         fail(f"config.json unreadable: {e}")
 
+    import subprocess
+    try:
+        repo = subprocess.check_output(['git','rev-parse','--show-toplevel'], text=True, stderr=subprocess.DEVNULL).strip()
+    except subprocess.CalledProcessError:
+        fail('Run Mengli inside a Git repository')
+    local = os.path.join(repo, '.mengli.json')
+    if os.path.exists(local):
+        try:
+            overrides = json.load(open(local))
+            if not isinstance(overrides, dict): raise ValueError('expected object')
+            def merge(a,b):
+                for k,v in b.items():
+                    if isinstance(v,dict) and isinstance(a.get(k),dict): merge(a[k],v)
+                    else: a[k]=v
+            merge(config, overrides)
+        except (OSError, ValueError) as e: fail(f'.mengli.json invalid: {e}')
+    project_type = config.get('projectType','auto')
+    provider = config.get('provider','auto')
     clickup_id, prompt_words, acs, files = None, [], [], []
     only = skip = None
     frm = to = None
@@ -152,10 +170,16 @@ def main():
             frm = step_index(value())
         elif t == "--to":
             to = step_index(value())
+        elif t == '--project-type':
+            project_type = value()
+            if project_type not in ('auto','web','desktop','mobile','backend','cli','library'): fail('Invalid project type')
+        elif t == '--provider':
+            provider = value()
+            if provider not in ('auto','gitlab','github','none'): fail('Invalid provider')
         elif t == "--platform":
             platform = value().lower()
-            if platform not in ("ios", "android"):
-                fail("--platform must be ios or android")
+            if platform not in ("auto", "web", "desktop", "ios", "android", "headless"):
+                fail("Invalid --platform")
         elif t == "--base":
             base = value()
         elif t == "--model":
@@ -204,7 +228,7 @@ def main():
     cfg_agents = config.get("agents") or {}
     agents = {}
     for key, name in AGENT_KEYS.items():
-        fm = frontmatter(os.path.join(AGENTS_DIR, f"{name}.md"))
+        fm = frontmatter(os.path.join(AGENTS_DIR, f"{name}.md")) or frontmatter(os.path.join(SKILL_DIR, "../../agents", f"{name}.md"))
         resolved = {}
         for field in ("model", "effort"):
             g = g_model if field == "model" else g_effort
@@ -222,9 +246,10 @@ def main():
         agents[key] = {"subagent_type": name, **resolved}
 
     qa = config.get("qa") or {}
-    platform = platform or qa.get("platform", "ios")
+    platform = platform or qa.get("platform", "auto")
 
     out = {
+        "repoRoot": repo, "projectType": project_type, "provider": provider, "projectConfig": config,
         "clickupId": clickup_id,
         "promptText": prompt_text or None,
         "acs": acs,
@@ -237,9 +262,9 @@ def main():
         "hasStepSelection": has_selection,
         "platform": platform,
         "platformConfig": qa.get(platform, {}),
-        "env": qa.get("env", "staging"),
-        "buildType": qa.get("buildType", "release"),
-        "base": base or config.get("baseBranch", "master"),
+        "env": qa.get("env", None),
+        "buildType": qa.get("buildType", None),
+        "base": base or config.get("baseBranch"),
         "agents": agents,
         "limits": {
             **(config.get("limits") or {}),

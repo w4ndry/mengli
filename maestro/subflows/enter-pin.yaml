@@ -1,8 +1,0 @@
-# Enter the app PIN from the MENGLI_QA_PIN env var (pass with: -e MENGLI_QA_PIN=$MENGLI_QA_PIN).
-# Never hardcode a PIN here. If the PIN screen's testID differs, mengli-qa-simulator fixes the selector.
-appId: ${APP_ID}
----
-- assertTrue:
-    condition: ${MENGLI_QA_PIN != undefined && MENGLI_QA_PIN != ''}
-    label: "MENGLI_QA_PIN is set"
-- inputText: ${MENGLI_QA_PIN}

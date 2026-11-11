@@ -1,6 +1,9 @@
 {
-  "baseBranch": "master",
-  "defaults": { "model": null, "effort": null },
+  "baseBranch": null,
+  "defaults": {
+    "model": null,
+    "effort": null
+  },
   "agents": {
     "planner": {},
     "plan-reviewer": {},
@@ -9,26 +12,14 @@
     "mr-reviewer": {}
   },
   "qa": {
-    "platform": "ios",
-    "env": "staging",
-    "buildType": "release",
-    "ios": {
-      "workspace": "ios/FlipApp.xcworkspace",
-      "scheme": "FlipAppStaging",
-      "configuration": "Staging",
-      "productDir": "Staging-iphonesimulator",
-      "appName": "Flip.app",
-      "appId": "id.flip.staging",
-      "device": null
-    },
-    "android": {
-      "buildScript": "build_android_staging_release",
-      "apkDir": "android/app/build/outputs/apk/staging/release",
-      "appId": "id.flip.staging",
-      "avd": null
-    },
+    "platform": "auto",
     "maxAttempts": 5,
     "maxHeals": 2
   },
-  "limits": { "planReviewRounds": 2, "checkFixRounds": 3 }
+  "limits": {
+    "planReviewRounds": 2,
+    "checkFixRounds": 3
+  },
+  "projectType": "auto",
+  "provider": "auto"
 }

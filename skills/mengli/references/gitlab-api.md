@@ -1,4 +1,4 @@
-# mengli GitLab reference (glab 1.89, project `flip-id/flip-mobile`, id 1454265)
+# GitLab reference
 
 Run every command from the repo root so `:id` resolves. Helper scripts live in `~/.claude/skills/mengli/scripts/` (shortened to `$S` below).
 

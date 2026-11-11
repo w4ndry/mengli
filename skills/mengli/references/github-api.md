@@ -1,0 +1,4 @@
+# GitHub
+Run gh in the resolved repository. Use gh pr list/view/diff/create/edit with explicit base and head. Pass description files with --body-file. Never submit approval, merge or close requests.
+Use gh api pulls/{number}/comments for diff comments with current head SHA, path, line and side; replies use the comment replies endpoint. Read all pages. Group root comments and replies, exclude resolved threads using reviewThreads GraphQL data; skip threads whose latest reply is yours, but include unanswered single comments. Never resolve threads. Keep replies concise, verify fixes before posting and never claim an unpushed fix.
+GitHub CLI has no general video attachment upload equivalent. Link existing accessible evidence URLs only; otherwise state evidence remains local and report the limitation. Do not create releases or upload to another service.
