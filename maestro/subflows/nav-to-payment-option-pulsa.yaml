@@ -1,0 +1,23 @@
+# Home -> Pulsa & Bills -> Top Up Pulsa (prefilled number) -> Rp5.000 tile -> Lanjutkan -> Generic Payment Page.
+appId: ${APP_ID}
+---
+- runFlow: /Users/FLP9EriWandri/.claude/mengli/maestro/subflows/launch.yaml
+- tapOn:
+    id: ".*/HOME_CONTENT_SCENE-ICON-MENU-DPT_LANDING_PAGE_ENTRY"
+- extendedWaitUntil:
+    visible: "Top Up"
+    timeout: 60000
+- tapOn: "Pulsa"
+- extendedWaitUntil:
+    visible:
+      id: ".*/CROSS_SELL_PREPAID_SCENE-PRODUCT_ITEM_pulsa_telkomsel_5c"
+    timeout: 60000
+- tapOn:
+    id: ".*/CROSS_SELL_PREPAID_SCENE-PRODUCT_ITEM_pulsa_telkomsel_5c"
+- tapOn: "Lanjutkan"
+- extendedWaitUntil:
+    visible:
+      id: ".*/PAYMENT_COMPONENT-BUTTON-PAYMENT_METHOD_ITEM-BUTTON-flip-coin"
+    timeout: 60000
+- assertVisible:
+    id: ".*/PAYMENT_COMPONENT-FOOTER_CONTENT_TEXT_AMOUNT"
